@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MemberRepositoryTest {
     @Autowired MemberRepository memberRepository;
     @Autowired TeamRepository teamRepository;
+    
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -176,6 +181,26 @@ public class MemberRepositoryTest {
         assertThat(page.isFirst()).isTrue(); //첫번째 항목인가?
         assertThat(page.hasNext()).isTrue(); //다음 페이지가 있는가?
     }
+
+
+    @Test
+    public void bulkUpdate() throws Exception {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        //when
+        int resultCount = memberRepository.bulkAgePlus(20);
+        List<Member> result = memberRepository.findByUsername("member5");
+        System.out.println("member5" + result.get(0));
+
+        //then
+        assertThat(resultCount).isEqualTo(3);
+    }
+
 
 
 }
